@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StickerFlow - Creador de Stickers Virales 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0E141E; /* Deep dark blue for general background */
+            --text-color: #D1D9E4; /* Elegant light blue-grey for text */
+            --primary-color: #FF7A00; /* Strong Orange - primary accent */
+            --primary-hover-color: #E66E00; /* Darker orange for hover */
+            --secondary-bg: #1B2A3D; /* Medium dark blue for cards/sections */
+            --border-color: #34496B; /* Subtle blue-grey border */
+            --card-bg: var(--secondary-bg);
+            --input-bg: #283D59; /* Darker blue for inputs */
+            --error-color: #FF4D4D; /* Vivid Red */
+            --success-color: #6BEF6B; /* Bright Green */
+            --button-text-color: #FFFFFF; /* White text for most buttons */
+            --edit-button-bg: #FFC300; /* Golden Yellow for edit */
+            --edit-button-text: var(--secondary-bg); /* Dark text for yellow button */
+            --whatsapp-bg: #253B57; /* Dark blue for chat preview */
+            --checkerboard-light: #2A3F5B; /* Checkerboard for transparency */
+            --checkerboard-dark: #21334E; /* Checkerboard for transparency */
+        }
+
+        /* General & Body */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            line-height: 1.6;
+            transition: background-color 0.4s ease-out;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 1100px;
+            background-color: transparent; /* Main root is transparent, sections are cards */
+            border-radius: 20px;
+            padding: 30px 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Space between main sections */
+        }
+
+        /* Header */
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px 0;
+        }
+
+        .app-header h1 {
+            color: var(--text-color);
+            font-size: 3.8em;
+            letter-spacing: -1px;
+            text-shadow: 0 0 25px rgba(255, 122, 0, 0.7), 0 0 10px rgba(255, 122, 0, 0.3);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .app-header h1 span {
+            font-size: 0.4em;
+            font-weight: 500;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+            opacity: 0.8;
+            text-shadow: none;
+        }
+
+        /* Main Content Wrapper for 2-column layout */
+        .main-content-wrapper {
+            display: grid;
+            grid-template-columns: 320px 1fr; /* Left sidebar fixed, right main takes rest */
+            gap: 30px;
+            align-items: flex-start; /* Align content to the top */
+        }
+
+        /* Left Column: Templates Sidebar */
+        .templates-sidebar {
+            position: sticky; /* Makes it stay in place while scrolling main content */
+            top: 20px; /* Adjust as needed */
+            height: calc(100vh - 40px); /* Fill viewport height, less padding */
+            overflow-y: auto; /* Enable scrolling for templates */
+            padding-right: 15px; /* Space before scrollbar */
+        }
+        .templates-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .templates-sidebar::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 10px;
+        }
+        .templates-sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .templates-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-hover-color);
+        }
+
+        .templates-list-container {
+            padding: 25px; /* Slightly less padding to make templates more compact */
+            height: auto; /* Allow content to dictate height */
+            min-height: calc(100vh - 80px); /* Ensure it's tall enough for sticky */
+        }
+
+        /* Right Column: Main App Sections */
+        .app-main-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Space between sections in the main column */
+        }
+
+
+        /* Headings */
+        h2, h3, h4 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 2em;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h3 {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+        h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .primary-text-highlight {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+
+        .icon {
+            font-size: 0.9em;
+            vertical-align: middle;
+        }
+
+        /* Section Containers (Cards) */
+        .section-container {
+            padding: 35px;
+            background-color: var(--secondary-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .section-container p {
+            font-size: 1.05em;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Inputs & Textareas */
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.1em;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1.1em;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 60px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.4);
+            background-color: #34496B;
+        }
+        textarea::placeholder, input[type="text"]::placeholder {
+            color: rgba(209, 217, 228, 0.5);
+        }
+
+        /* Buttons */
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        button:hover {
+            background-color: var(--primary-hover-color);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        button:disabled {
+            background-color: #4A5568;
+            color: #A0AEC0;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* Specific Button Styles */
+        .btn-animated {
+            background-color: var(--edit-button-bg); /* Golden yellow for animated */
+            color: var(--edit-button-text);
+        }
+        .btn-animated:hover {
+            background-color: #E0AE00;
+        }
+        .btn-remove-bg {
+            background-color: #5A6D8C; /* Grayish blue for remove background */
+            color: var(--button-text-color);
+        }
+        .btn-remove-bg:hover {
+            background-color: #4A5C78;
+        }
+        .btn-cancel-edit {
+            background-color: #DC3545; /* Red for cancel */
+        }
+        .btn-cancel-edit:hover {
+            background-color: #C82333;
+        }
+        .btn-save {
+            background-color: var(--primary-color);
+        }
+        .btn-load {
+            background-color: #17A2B8; /* Cyan-blue for load */
+        }
+        .btn-load:hover {
+            background-color: #138496;
+        }
+        .btn-clear-saved {
+            background-color: #DC3545; /* Red for clear */
+        }
+        .btn-download-all {
+            background-color: var(--success-color);
+            color: var(--secondary-bg); /* Dark text for success green */
+        }
+        .btn-download-all:hover {
+            background-color: #5AD85A;
+        }
+
+        /* Sticker Grid */
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 35px;
+        }
+
+        .sticker-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            position: relative;
+            border: 2px solid var(--border-color);
+        }
+
+        .sticker-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .sticker-card.selected {
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 25px rgba(255, 122, 0, 0.8), 0 0 10px rgba(255, 122, 0, 0.5);
+            transform: translateY(-6px);
+        }
+
+        .sticker-visual {
+            width: 220px;
+            height: 220px;
+            border-radius: 10px;
+            object-fit: cover; /* Cover ensures full fill, might crop some parts */
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sticker-card .video-placeholder {
+            width: 220px;
+            height: 220px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #3A4452;
+            color: #BBBBBB;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            font-size: 0.95em;
+            text-align: center;
+        }
+
+        .sticker-actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .sticker-actions .btn-action {
+            flex-grow: 1;
+            padding: 12px 15px;
+            font-size: 0.9em;
+            box-shadow: none;
+            letter-spacing: 0.2px;
+            font-weight: 500;
+        }
+        .sticker-actions .btn-download-single {
+            background-color: var(--primary-color);
+        }
+        .sticker-actions .btn-edit-single {
+            background-color: #6C7A90; /* Neutral grey for edit */
+            color: var(--button-text-color);
+        }
+        .sticker-actions .btn-edit-single:hover {
+            background-color: #5A6A7D;
+        }
+        .sticker-actions .btn-edit-single:disabled {
+            background-color: #4A5568;
+            color: #A0AEC0;
+        }
+
+        /* Template Section Styles */
+        .template-grid {
+            display: flex;
+            flex-direction: column; /* Stack templates vertically */
+            gap: 15px; /* Spacing between template cards */
+            margin-top: 25px;
+        }
+
+        .template-card {
+            background-color: var(--input-bg); /* Slightly different bg for templates */
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            min-height: 120px; /* Make templates a bit shorter for the sidebar */
+            color: var(--text-color);
+            justify-content: center;
+            gap: 8px;
+            width: 100%; /* Take full width of sidebar */
+            box-sizing: border-box;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+            border-color: var(--primary-color);
+        }
+
+        .template-icon {
+            font-size: 2.2em; /* Slightly smaller icons for compactness */
+            line-height: 1;
+        }
+
+        .template-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.95em; /* Slightly smaller name font */
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .template-prompt-preview {
+            font-size: 0.8em; /* Smaller prompt preview */
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.3;
+            opacity: 0.7;
+            height: 2.6em; /* Approximate 2 lines */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit to 2 lines for compactness */
+            -webkit-box-orient: vertical;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 6px solid rgba(255, 122, 0, 0.2);
+            border-top: 6px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+            opacity: 0.9;
+        }
+        .loading-spinner.large {
+            width: 70px;
+            height: 70px;
+            border-width: 8px;
+        }
+        .loading-spinner.small {
+            width: 30px;
+            height: 30px;
+            border-width: 4px;
+            margin: 20px auto;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Message Containers */
+        .message-container {
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.05em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.2px;
+            border: 1px solid transparent; /* default */
+        }
+
+        .error-message {
+            background-color: rgba(255, 77, 77, 0.15);
+            color: var(--error-color);
+            border-color: var(--error-color);
+        }
+
+        /* Updated info-message to use primary orange for consistency */
+        .info-info { 
+            background-color: rgba(255, 122, 0, 0.15);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .api-key-prompt {
+            text-align: center;
+        }
+        .api-key-prompt p {
+            margin-bottom: 25px;
+            font-size: 1.15em;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .api-key-prompt a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+        .api-key-prompt a:hover {
+            text-decoration: underline;
+            color: var(--primary-hover-color);
+        }
+
+        /* Transparency Checkerboard Background */
+        .transparent-background {
+            background-color: var(--checkerboard-light);
+            background-image:
+                linear-gradient(45deg, var(--checkerboard-dark) 25%, transparent 25%),
+                linear-gradient(135deg, var(--checkerboard-dark) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--checkerboard-dark) 75%),
+                linear-gradient(135deg, transparent 75%, var(--checkerboard-dark) 75%);
+            background-size: 18px 18px;
+            background-position: 0 0, 9px 0, 9px -9px, 0 9px;
+        }
+
+        /* WhatsApp Chat Preview Styles */
+        .whatsapp-preview-section {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .whatsapp-chat-preview-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 25px;
+            background-color: var(--whatsapp-bg);
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #3A4452;
+            box-shadow: inset 0 2px 12px rgba(0,0,0,0.25);
+            max-width: 500px; /* Simulate phone chat width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chat-message {
+            display: flex;
+            max-width: 80%;
+            border-radius: 12px;
+            padding: 10px 15px;
+            align-items: center;
+            font-size: 0.95em;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+
+        .chat-message.sender {
+            background-color: #dcf8c6; /* WhatsApp Green bubble */
+            align-self: flex-end;
+            margin-left: auto;
+            color: #1a1a1a;
+        }
+
+        .chat-message.recipient {
+            background-color: #ffffff; /* WhatsApp White bubble */
+            align-self: flex-start;
+            margin-right: auto;
+            color: #1a1a1a;
+        }
+        
+        .chat-sticker-wrapper {
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .chat-sticker-preview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .chat-sticker-wrapper.transparent-background {
+             background-size: 12px 12px;
+             background-position: 0 0, 6px 0, 6px -6px, 0 6px;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            color: rgba(209, 217, 228, 0.6);
+            font-size: 0.9em;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            #root {
+                gap: 25px;
+            }
+            .app-header h1 {
+                font-size: 3.2em;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+            .section-container {
+                padding: 30px;
+            }
+            /* Collapse to single column on smaller screens */
+            .main-content-wrapper {
+                grid-template-columns: 1fr; /* Single column */
+                gap: 25px;
+            }
+            .templates-sidebar {
+                position: static; /* Remove sticky */
+                height: auto; /* Auto height */
+                overflow-y: visible; /* No special scrolling */
+                padding-right: 0;
+            }
+            .templates-list-container {
+                min-height: auto; /* Remove min-height for mobile */
+            }
+            .template-grid {
+                flex-direction: row; /* Back to row for template cards */
+                flex-wrap: wrap; /* Allow wrapping */
+                justify-content: center; /* Center templates */
+                gap: 20px; /* Adjust gap for row layout */
+            }
+            .template-card {
+                width: 150px; /* Adjust width for grid-like appearance */
+                min-height: 140px;
+                padding: 18px; /* Slightly more padding */
+            }
+            .template-icon {
+                font-size: 2.3em; /* Slightly larger icons */
+            }
+            .template-name {
+                font-size: 1em; /* Adjust name font size */
+            }
+            .template-prompt-preview {
+                -webkit-line-clamp: 3; /* More lines on larger mobile cards */
+                font-size: 0.85em;
+            }
+            .sticker-visual, .sticker-card .video-placeholder {
+                width: 200px;
+                height: 200px;
+            }
+            .sticker-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            #root {
+                padding: 20px 0;
+                gap: 20px;
+            }
+            .app-header h1 {
+                font-size: 2.8em;
+            }
+            .app-header h1 span {
+                font-size: 0.45em;
+            }
+            h2 {
+                font-size: 1.6em;
+                margin-bottom: 20px;
+            }
+            h3 {
+                font-size: 1.4em;
+                margin-bottom: 18px;
+            }
+            .section-container {
+                padding: 25px;
+                border-radius: 14px;
+            }
+            label {
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            textarea, input[type="text"] {
+                padding: 15px;
+                font-size: 1em;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+            button {
+                padding: 12px 20px;
+                font-size: 0.95em;
+                border-radius: 8px;
+            }
+            .btn-group {
+                gap: 12px;
+            }
+            .sticker-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 20px;
+            }
+            .sticker-visual, .sticker-card .video-placeholder {
+                width: 160px;
+                height: 160px;
+                margin-bottom: 20px;
+            }
+            .sticker-actions .btn-action {
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+            .template-grid {
+                gap: 15px;
+            }
+            .template-card {
+                width: 130px; /* Slightly smaller for 768px */
+                min-height: 130px;
+                padding: 15px;
+            }
+            .template-icon {
+                font-size: 2em;
+            }
+            .template-name {
+                font-size: 0.9em;
+            }
+            .template-prompt-preview {
+                font-size: 0.75em;
+                -webkit-line-clamp: 2;
+            }
+            .message-container {
+                font-size: 1em;
+                padding: 18px;
+            }
+            .whatsapp-chat-preview-container {
+                padding: 20px;
+                gap: 10px;
+            }
+            .chat-sticker-wrapper {
+                width: 80px;
+                height: 80px;
+            }
+            .chat-message {
+                font-size: 0.9em;
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            #root {
+                padding: 15px 0;
+                gap: 15px;
+            }
+            .app-header h1 {
+                font-size: 2.2em;
+            }
+            .app-header h1 span {
+                font-size: 0.4em;
+                letter-spacing: 1px;
+            }
+            h2 {
+                font-size: 1.4em;
+                margin-bottom: 15px;
+                gap: 8px;
+            }
+            h3 {
+                font-size: 1.2em;
+                margin-bottom: 12px;
+            }
+            .section-container {
+                padding: 20px;
+                border-radius: 12px;
+            }
+            textarea, input[type="text"] {
+                padding: 12px;
+                font-size: 0.95em;
+                margin-bottom: 15px;
+            }
+            button {
+                width: 100%;
+                padding: 10px 15px;
+                font-size: 0.9em;
+                border-radius: 8px;
+            }
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+            }
+            .sticker-grid {
+                grid-template-columns: 1fr; /* Single column on very small screens */
+                gap: 15px;
+            }
+            .sticker-visual, .sticker-card .video-placeholder {
+                width: 180px; /* Make them a bit smaller */
+                height: 180px;
+                margin-bottom: 15px;
+            }
+            .sticker-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .sticker-actions .btn-action {
+                width: 100%;
+            }
+            .template-grid {
+                gap: 10px;
+            }
+            .template-card {
+                width: 100%; /* Full width for template cards on small mobile */
+                min-height: 120px;
+                padding: 12px;
+            }
+            .template-icon {
+                font-size: 1.8em;
+            }
+            .template-name {
+                font-size: 0.8em;
+            }
+            .template-prompt-preview {
+                font-size: 0.7em;
+                height: auto;
+                -webkit-line-clamp: 2;
+            }
+            .message-container {
+                font-size: 0.9em;
+                padding: 15px;
+            }
+            .whatsapp-chat-preview-container {
+                padding: 15px;
+                gap: 8px;
+            }
+            .chat-sticker-wrapper {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+</body>
+</html>
